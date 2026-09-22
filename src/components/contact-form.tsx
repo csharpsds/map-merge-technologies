@@ -294,7 +294,7 @@ export function ContactForm({
         <Label htmlFor="consent" className="text-sm leading-6 font-normal text-ink">
           I agree that Map & Merge Technologies may use this information to respond
           to my inquiry. See the{" "}
-          <a href="/privacy" className="font-medium text-electric underline">
+          <a href="/privacy" className="whitespace-nowrap font-medium text-electric underline">
             privacy policy
           </a>
           .

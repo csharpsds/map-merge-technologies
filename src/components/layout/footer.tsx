@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CookiePreferencesTrigger } from "@/components/cookie-banner";
 import { configuredContactEntries, siteConfig } from "@/content/site-config";
 
 export function Footer() {
@@ -115,6 +116,7 @@ export function Footer() {
             <Link href="/cookies" className="hover:text-white">
               Cookie Policy
             </Link>
+            <CookiePreferencesTrigger className="text-left hover:text-white" />
           </div>
           <p>
             © {year} {siteConfig.name}. All rights reserved.

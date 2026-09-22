@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,22 +13,32 @@ import {
 
 const STORAGE_KEY = "mm-cookie-preferences";
 const CHANGE_EVENT = "mm-cookie-preferences-change";
+export const COOKIE_PREFERENCES_EVENT = "mm-open-cookie-preferences";
 
 type Preferences = {
   essential: true;
   analytics: boolean;
 };
 
+let cachedRaw: string | null | undefined;
+let cachedValue: Preferences | null = null;
+
 function readPreferences(): Preferences | null {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
+  if (raw === cachedRaw) return cachedValue;
+  cachedRaw = raw;
+  if (!raw) {
+    cachedValue = null;
+    return cachedValue;
+  }
   try {
     const parsed = JSON.parse(raw) as Preferences;
-    return { essential: true, analytics: Boolean(parsed.analytics) };
+    cachedValue = { essential: true, analytics: Boolean(parsed.analytics) };
   } catch {
-    return null;
+    cachedValue = null;
   }
+  return cachedValue;
 }
 
 function subscribe(onStoreChange: () => void) {
@@ -42,18 +52,47 @@ function subscribe(onStoreChange: () => void) {
 
 function persist(next: Preferences) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  cachedRaw = undefined;
   window.dispatchEvent(new Event(CHANGE_EVENT));
+}
+
+export function CookiePreferencesTrigger({
+  className,
+}: {
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={() => window.dispatchEvent(new Event(COOKIE_PREFERENCES_EVENT))}
+    >
+      Cookie preferences
+    </button>
+  );
 }
 
 export function CookieBanner() {
   const existing = useSyncExternalStore(subscribe, readPreferences, () => null);
   const [open, setOpen] = useState(false);
   const [draftAnalytics, setDraftAnalytics] = useState(false);
-  const banner = existing === null;
+
+  useEffect(() => {
+    const openDialog = () => {
+      setDraftAnalytics(readPreferences()?.analytics ?? false);
+      setOpen(true);
+    };
+    window.addEventListener(COOKIE_PREFERENCES_EVENT, openDialog);
+    return () => window.removeEventListener(COOKIE_PREFERENCES_EVENT, openDialog);
+  }, []);
+
+  if (existing !== null && !open) {
+    return null;
+  }
 
   return (
     <>
-      {banner ? (
+      {existing === null ? (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 p-4 shadow-lg backdrop-blur">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <p className="max-w-2xl text-sm leading-6 text-slate">
@@ -94,18 +133,7 @@ export function CookieBanner() {
             </div>
           </div>
         </div>
-      ) : (
-        <button
-          type="button"
-          className="fixed bottom-4 left-4 z-30 min-h-11 rounded-lg border border-line bg-white px-3 text-xs font-medium text-slate shadow-sm hover:text-navy"
-          onClick={() => {
-            setDraftAnalytics(existing.analytics);
-            setOpen(true);
-          }}
-        >
-          Cookie preferences
-        </button>
-      )}
+      ) : null}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
