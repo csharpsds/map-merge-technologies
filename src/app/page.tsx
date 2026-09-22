@@ -9,6 +9,7 @@ import { ExpertiseTabs } from "@/components/expertise-tabs";
 import { Hero } from "@/components/hero";
 import { IndustryCard } from "@/components/industry-card";
 import { ConnectionSequence } from "@/components/connection-sequence";
+import { WhyDifference } from "@/components/why-difference";
 import { IntegrationCanvas } from "@/components/integration-canvas";
 import { ProcessTimeline } from "@/components/process-timeline";
 import { SectionHeading } from "@/components/section-heading";
@@ -252,16 +253,9 @@ export default function HomePage() {
       <section className="py-16 sm:py-24">
         <Container>
           <SectionHeading eyebrow="Why Map & Merge" title={siteConfig.why.heading} />
-          <ul className="mt-10 grid gap-4 md:grid-cols-2">
-            {siteConfig.why.reasons.map((reason) => (
-              <li
-                key={reason}
-                className="rounded-xl border border-line bg-white px-4 py-4 text-sm leading-6 text-ink"
-              >
-                {reason}
-              </li>
-            ))}
-          </ul>
+          <div className="mt-10">
+            <WhyDifference />
+          </div>
         </Container>
       </section>
 
