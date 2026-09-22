@@ -1,0 +1,150 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-manrope);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-navy: #031b3d;
+  --color-dark-blue: #062b5c;
+  --color-electric: #0799f8;
+  --color-cyan: #12bff3;
+  --color-teal: #08b9ae;
+  --color-canvas: #f5f9fc;
+  --color-ink: #10243e;
+  --color-slate: #52657a;
+  --color-line: #dce7f0;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #10243e;
+  --card: #ffffff;
+  --card-foreground: #10243e;
+  --popover: #ffffff;
+  --popover-foreground: #10243e;
+  --primary: #0799f8;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f9fc;
+  --secondary-foreground: #031b3d;
+  --muted: #f5f9fc;
+  --muted-foreground: #52657a;
+  --accent: #e7f5fe;
+  --accent-foreground: #031b3d;
+  --destructive: #b42318;
+  --border: #dce7f0;
+  --input: #dce7f0;
+  --ring: #0799f8;
+  --chart-1: #0799f8;
+  --chart-2: #08b9ae;
+  --chart-3: #12bff3;
+  --chart-4: #062b5c;
+  --chart-5: #031b3d;
+  --radius: 0.75rem;
+  --sidebar: #f5f9fc;
+  --sidebar-foreground: #10243e;
+  --sidebar-primary: #0799f8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e7f5fe;
+  --sidebar-accent-foreground: #031b3d;
+  --sidebar-border: #dce7f0;
+  --sidebar-ring: #0799f8;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans scroll-smooth;
+  }
+
+  body {
+    @apply bg-canvas text-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+    @apply text-balance tracking-tight text-navy;
+  }
+
+  :focus-visible {
+    outline: 3px solid color-mix(in srgb, #0799f8 55%, white);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .grid-overlay {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .light-grid {
+    background-image:
+      linear-gradient(to right, rgb(3 27 61 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(3 27 61 / 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+}
