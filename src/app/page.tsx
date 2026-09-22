@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
+import { ChallengeBreakdown } from "@/components/challenge-breakdown";
 import { ArticleCard } from "@/components/article-card";
 import { CaseStudyCard } from "@/components/case-study-card";
 import { Container } from "@/components/container";
@@ -70,29 +71,8 @@ export default function HomePage() {
             title={siteConfig.challengesHeading}
             description="Common integration constraints, and the delivery approach Map & Merge uses to address them."
           />
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-line bg-white p-6">
-              <h3 className="text-lg font-semibold text-navy">Common challenges</h3>
-              <ul className="mt-4 space-y-3">
-                {siteConfig.challenges.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm leading-6 text-ink">
-                    <X className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-6">
-              <h3 className="text-lg font-semibold text-navy">Map & Merge approach</h3>
-              <ul className="mt-4 space-y-3">
-                {siteConfig.solutions.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm leading-6 text-ink">
-                    <Check className="mt-0.5 size-4 shrink-0 text-teal" aria-hidden="true" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="mt-10">
+            <ChallengeBreakdown />
           </div>
         </Container>
       </section>

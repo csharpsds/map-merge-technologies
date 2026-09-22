@@ -248,7 +248,10 @@
 
   .why-item,
   .why-row-line,
-  .why-detail-copy {
+  .why-detail-copy,
+  .challenge-item,
+  .challenge-link,
+  .challenge-step {
     animation: none !important;
     opacity: 1;
     transform: none;
@@ -476,6 +479,89 @@
 
 .why-detail-copy {
   animation: why-detail-in 0.28s ease both;
+}
+
+@keyframes challenge-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes challenge-link {
+  from {
+    stroke-dashoffset: 120;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes challenge-step {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.challenge-breakdown.is-in .challenge-item {
+  animation: challenge-enter 0.4s ease both;
+}
+
+.challenge-row {
+  border: 1px solid var(--color-line);
+  border-radius: 0.9rem;
+  background: #fff;
+}
+
+.challenge-row:hover,
+.challenge-row:focus-visible {
+  background: #f5f9fc;
+}
+
+.challenge-row.is-active {
+  border-color: color-mix(in srgb, #0799f8 50%, #dce7f0);
+  background: #f5f9fc;
+  box-shadow:
+    inset 3px 0 0 #08b9ae,
+    0 0 0 1px rgb(7 153 248 / 0.2);
+}
+
+.challenge-link {
+  stroke-dasharray: 120;
+  animation: challenge-link 0.55s ease both;
+}
+
+.challenge-detail {
+  min-height: 28rem;
+}
+
+.challenge-breakdown:not(.is-static) .challenge-steps .challenge-step:nth-child(2) {
+  animation: challenge-step 0.35s ease 0.08s both;
+}
+
+.challenge-breakdown:not(.is-static) .challenge-steps .challenge-step:nth-child(3) {
+  animation: challenge-step 0.35s ease 0.2s both;
+}
+
+.challenge-breakdown:not(.is-static) .challenge-steps .challenge-step:nth-child(4) {
+  animation: challenge-step 0.35s ease 0.32s both;
+}
+
+.challenge-breakdown:not(.is-static) .challenge-steps .challenge-step:nth-child(5) {
+  animation: challenge-step 0.35s ease 0.42s both;
+}
+
+.challenge-mobile-panel {
+  padding: 0 0.25rem 0.85rem;
 }
 
 @layer utilities {
