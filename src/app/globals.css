@@ -535,8 +535,14 @@
     0 0 0 1px rgb(7 153 248 / 0.2);
 }
 
+.challenge-gutter {
+  width: 2.75rem;
+  max-width: 2.75rem;
+}
+
 .challenge-connector {
-  max-width: 100%;
+  display: block;
+  overflow: hidden;
 }
 
 .challenge-link {

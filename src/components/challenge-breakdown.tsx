@@ -27,24 +27,24 @@ type ConnectorGeometry = {
 };
 
 function measureConnector(
-  container: HTMLElement,
+  gutter: HTMLElement,
   row: HTMLElement,
   panel: HTMLElement,
 ): ConnectorGeometry | null {
-  const bounds = container.getBoundingClientRect();
+  const gutterBox = gutter.getBoundingClientRect();
   const rowBox = row.getBoundingClientRect();
   const panelBox = panel.getBoundingClientRect();
-  if (bounds.width < 8 || bounds.height < 8 || rowBox.height < 1 || panelBox.height < 1) {
+  if (gutterBox.width < 4 || gutterBox.height < 8 || rowBox.height < 1 || panelBox.height < 1) {
     return null;
   }
 
   return {
-    width: bounds.width,
-    height: bounds.height,
-    startX: rowBox.right - bounds.left,
-    startY: rowBox.top - bounds.top + rowBox.height / 2,
-    endX: panelBox.left - bounds.left,
-    endY: panelBox.top - bounds.top + panelBox.height / 2,
+    width: gutterBox.width,
+    height: gutterBox.height,
+    startX: 2,
+    startY: rowBox.top - gutterBox.top + rowBox.height / 2,
+    endX: Math.max(gutterBox.width - 2, 3),
+    endY: panelBox.top - gutterBox.top + panelBox.height / 2,
   };
 }
 
@@ -59,9 +59,10 @@ function applyConnectorPath(
   geometry: ConnectorGeometry,
   options: { animate: boolean; reducedMotion: boolean },
 ) {
-  svg.setAttribute("width", String(geometry.width));
-  svg.setAttribute("height", String(geometry.height));
+  svg.removeAttribute("width");
+  svg.removeAttribute("height");
   svg.setAttribute("viewBox", `0 0 ${geometry.width} ${geometry.height}`);
+  svg.setAttribute("preserveAspectRatio", "none");
   path.setAttribute("d", connectorPath(geometry));
   path.setAttribute("opacity", "1");
 
@@ -90,6 +91,7 @@ export function ChallengeBreakdown() {
   const rootRef = useRef<HTMLDivElement>(null);
   const layoutRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
+  const gutterRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
@@ -126,13 +128,13 @@ export function ChallengeBreakdown() {
     let cancelled = false;
 
     const update = (animate: boolean) => {
-      const container = layoutRef.current;
+      const gutter = gutterRef.current;
       const row = rowRefs.current[selected];
       const panel = panelRef.current;
       const svg = svgRef.current;
       const path = pathRef.current;
-      if (!container || !row || !panel || !svg || !path || cancelled) return;
-      const next = measureConnector(container, row, panel);
+      if (!gutter || !row || !panel || !svg || !path || cancelled) return;
+      const next = measureConnector(gutter, row, panel);
       if (!next) {
         path.setAttribute("opacity", "0");
         path.setAttribute("d", "");
@@ -151,6 +153,7 @@ export function ChallengeBreakdown() {
     const observer = new ResizeObserver(() => schedule(false));
     if (layoutRef.current) observer.observe(layoutRef.current);
     if (listRef.current) observer.observe(listRef.current);
+    if (gutterRef.current) observer.observe(gutterRef.current);
     if (panelRef.current) observer.observe(panelRef.current);
     const selectedRow = rowRefs.current[selected];
     if (selectedRow) observer.observe(selectedRow);
@@ -195,9 +198,9 @@ export function ChallengeBreakdown() {
     >
       <div
         ref={layoutRef}
-        className="relative overflow-x-hidden lg:grid lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:items-start lg:gap-x-10"
+        className="lg:grid lg:grid-cols-[minmax(0,20rem)_2.75rem_minmax(0,1fr)] lg:items-stretch"
       >
-        <ol ref={listRef} className="relative z-10 space-y-2">
+        <ol ref={listRef} className="space-y-2">
           {challengeBreakdowns.map((challenge, index) => {
             const active = selected === index;
             const number = String(index + 1).padStart(2, "0");
@@ -252,34 +255,40 @@ export function ChallengeBreakdown() {
         </ol>
 
         {desktop ? (
-          <svg
-            ref={svgRef}
-            className="challenge-connector pointer-events-none absolute inset-0 z-0 h-full w-full overflow-hidden"
+          <div
+            ref={gutterRef}
+            className="challenge-gutter relative hidden min-h-full overflow-hidden lg:block"
             aria-hidden="true"
           >
-            <defs>
-              <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#0799F8" />
-                <stop offset="100%" stopColor="#08B9AE" />
-              </linearGradient>
-            </defs>
-            <path
-              ref={pathRef}
-              d=""
-              fill="none"
-              stroke={`url(#${gradientId})`}
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              opacity="0"
-              className="challenge-link"
-            />
-          </svg>
+            <svg
+              ref={svgRef}
+              className="challenge-connector pointer-events-none absolute inset-0 h-full w-full"
+            >
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#0799F8" />
+                  <stop offset="100%" stopColor="#08B9AE" />
+                </linearGradient>
+              </defs>
+              <path
+                ref={pathRef}
+                d=""
+                fill="none"
+                stroke={`url(#${gradientId})`}
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                opacity="0"
+                className="challenge-link"
+              />
+            </svg>
+          </div>
         ) : null}
 
         <aside
           ref={panelRef}
           id={`${baseId}-detail`}
-          className="challenge-detail relative z-10 mt-6 hidden rounded-2xl border border-line bg-white p-5 lg:mt-0 lg:block"
+          className="challenge-detail mt-6 hidden rounded-2xl border border-line bg-white p-5 lg:mt-0 lg:block"
           aria-live="polite"
         >
           {desktop ? <BreakdownBody item={item} /> : null}
