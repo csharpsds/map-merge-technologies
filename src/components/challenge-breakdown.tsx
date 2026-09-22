@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type KeyboardEvent,
+} from "react";
 import { ChallengeVisual } from "@/components/challenge-visual";
 import {
   challengeBreakdowns,
@@ -9,9 +17,83 @@ import {
 import { getMediaQuerySnapshot, subscribeMediaQuery } from "@/lib/media-query";
 import { cn } from "@/lib/utils";
 
+type ConnectorGeometry = {
+  width: number;
+  height: number;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+};
+
+function measureConnector(
+  container: HTMLElement,
+  row: HTMLElement,
+  panel: HTMLElement,
+): ConnectorGeometry | null {
+  const bounds = container.getBoundingClientRect();
+  const rowBox = row.getBoundingClientRect();
+  const panelBox = panel.getBoundingClientRect();
+  if (bounds.width < 8 || bounds.height < 8 || rowBox.height < 1 || panelBox.height < 1) {
+    return null;
+  }
+
+  return {
+    width: bounds.width,
+    height: bounds.height,
+    startX: rowBox.right - bounds.left,
+    startY: rowBox.top - bounds.top + rowBox.height / 2,
+    endX: panelBox.left - bounds.left,
+    endY: panelBox.top - bounds.top + panelBox.height / 2,
+  };
+}
+
+function connectorPath(geometry: ConnectorGeometry) {
+  const midX = geometry.startX + (geometry.endX - geometry.startX) / 2;
+  return `M ${geometry.startX} ${geometry.startY} C ${midX} ${geometry.startY}, ${midX} ${geometry.endY}, ${geometry.endX} ${geometry.endY}`;
+}
+
+function applyConnectorPath(
+  svg: SVGSVGElement,
+  path: SVGPathElement,
+  geometry: ConnectorGeometry,
+  options: { animate: boolean; reducedMotion: boolean },
+) {
+  svg.setAttribute("width", String(geometry.width));
+  svg.setAttribute("height", String(geometry.height));
+  svg.setAttribute("viewBox", `0 0 ${geometry.width} ${geometry.height}`);
+  path.setAttribute("d", connectorPath(geometry));
+  path.setAttribute("opacity", "1");
+
+  const length = path.getTotalLength();
+  path.style.strokeDasharray = `${length}`;
+  path.style.setProperty("--challenge-link-length", `${length}`);
+
+  if (options.reducedMotion) {
+    path.style.transition = "none";
+    path.style.strokeDashoffset = "0";
+    return;
+  }
+
+  if (!options.animate) return;
+
+  path.style.transition = "none";
+  path.style.strokeDashoffset = `${length}`;
+  path.getBoundingClientRect();
+  path.style.transition = "stroke-dashoffset 0.55s ease";
+  path.style.strokeDashoffset = "0";
+}
+
 export function ChallengeBreakdown() {
   const baseId = useId();
+  const gradientId = `challenge-link-${baseId.replace(/:/g, "")}`;
   const rootRef = useRef<HTMLDivElement>(null);
+  const layoutRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
+  const rowRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [selected, setSelected] = useState(0);
   const [inView, setInView] = useState(false);
   const reducedMotion = useSyncExternalStore(
@@ -19,13 +101,12 @@ export function ChallengeBreakdown() {
     () => getMediaQuerySnapshot("(prefers-reduced-motion: reduce)"),
     () => true,
   );
-  const narrow = useSyncExternalStore(
-    subscribeMediaQuery("(max-width: 767px)"),
-    () => getMediaQuerySnapshot("(max-width: 767px)"),
+  const desktop = useSyncExternalStore(
+    subscribeMediaQuery("(min-width: 1024px)"),
+    () => getMediaQuerySnapshot("(min-width: 1024px)"),
     () => false,
   );
   const item = challengeBreakdowns[selected];
-  const y1 = ((selected + 0.5) / challengeBreakdowns.length) * 100;
 
   useEffect(() => {
     const node = rootRef.current;
@@ -37,6 +118,62 @@ export function ChallengeBreakdown() {
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
+
+  useLayoutEffect(() => {
+    if (!desktop) return;
+
+    let frame = 0;
+    let cancelled = false;
+
+    const update = (animate: boolean) => {
+      const container = layoutRef.current;
+      const row = rowRefs.current[selected];
+      const panel = panelRef.current;
+      const svg = svgRef.current;
+      const path = pathRef.current;
+      if (!container || !row || !panel || !svg || !path || cancelled) return;
+      const next = measureConnector(container, row, panel);
+      if (!next) {
+        path.setAttribute("opacity", "0");
+        path.setAttribute("d", "");
+        return;
+      }
+      applyConnectorPath(svg, path, next, { animate, reducedMotion });
+    };
+
+    const schedule = (animate: boolean) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => update(animate));
+    };
+
+    update(true);
+
+    const observer = new ResizeObserver(() => schedule(false));
+    if (layoutRef.current) observer.observe(layoutRef.current);
+    if (listRef.current) observer.observe(listRef.current);
+    if (panelRef.current) observer.observe(panelRef.current);
+    const selectedRow = rowRefs.current[selected];
+    if (selectedRow) observer.observe(selectedRow);
+
+    const onWindowChange = () => schedule(false);
+    window.addEventListener("resize", onWindowChange);
+    window.addEventListener("orientationchange", onWindowChange);
+
+    const fonts = document.fonts;
+    fonts?.addEventListener("loadingdone", onWindowChange);
+    void fonts?.ready.then(() => {
+      if (!cancelled) schedule(false);
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", onWindowChange);
+      window.removeEventListener("orientationchange", onWindowChange);
+      fonts?.removeEventListener("loadingdone", onWindowChange);
+    };
+  }, [desktop, selected, item.title, reducedMotion]);
 
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
@@ -56,8 +193,11 @@ export function ChallengeBreakdown() {
       ref={rootRef}
       className={cn("challenge-breakdown", inView && "is-in", reducedMotion && "is-static")}
     >
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,19rem)_3rem_minmax(0,1fr)]">
-        <ol className="space-y-2">
+      <div
+        ref={layoutRef}
+        className="relative overflow-x-hidden lg:grid lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:items-start lg:gap-x-10"
+      >
+        <ol ref={listRef} className="relative z-10 space-y-2">
           {challengeBreakdowns.map((challenge, index) => {
             const active = selected === index;
             const number = String(index + 1).padStart(2, "0");
@@ -70,11 +210,14 @@ export function ChallengeBreakdown() {
               >
                 <button
                   type="button"
+                  ref={(node) => {
+                    rowRefs.current[index] = node;
+                  }}
                   data-challenge-index={index}
                   id={`${baseId}-tab-${index}`}
                   aria-pressed={active}
-                  aria-expanded={narrow ? active : undefined}
-                  aria-controls={narrow ? panelId : `${baseId}-detail`}
+                  aria-expanded={desktop ? undefined : active}
+                  aria-controls={desktop ? `${baseId}-detail` : panelId}
                   className={cn("challenge-row w-full text-left", active && "is-active")}
                   onClick={() => setSelected(index)}
                   onKeyDown={(event) => onKeyDown(event, index)}
@@ -82,16 +225,18 @@ export function ChallengeBreakdown() {
                   <span className="flex min-h-12 items-center gap-3 px-3 py-2.5">
                     <span
                       className={cn(
-                        "w-7 text-xs font-semibold tracking-[0.14em]",
+                        "w-7 shrink-0 text-xs font-semibold tracking-[0.14em]",
                         active ? "text-cyan" : "text-electric",
                       )}
                     >
                       {number}
                     </span>
-                    <span className="text-sm font-semibold text-navy">{challenge.title}</span>
+                    <span className="text-sm font-semibold text-balance text-navy">
+                      {challenge.title}
+                    </span>
                   </span>
                 </button>
-                {narrow ? (
+                {!desktop ? (
                   <div
                     id={panelId}
                     role="region"
@@ -106,34 +251,38 @@ export function ChallengeBreakdown() {
           })}
         </ol>
 
-        <svg
-          className="challenge-connector hidden h-full min-h-80 w-full lg:block"
-          viewBox="0 0 48 100"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path
-            key={selected}
-            d={`M 2 ${y1} C 20 ${y1}, 28 42, 46 42`}
-            fill="none"
-            stroke="url(#challenge-link)"
-            strokeWidth="1.6"
-            className="challenge-link"
-          />
-          <defs>
-            <linearGradient id="challenge-link" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#0799F8" />
-              <stop offset="100%" stopColor="#08B9AE" />
-            </linearGradient>
-          </defs>
-        </svg>
+        {desktop ? (
+          <svg
+            ref={svgRef}
+            className="challenge-connector pointer-events-none absolute inset-0 z-0 h-full w-full overflow-hidden"
+            aria-hidden="true"
+          >
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#0799F8" />
+                <stop offset="100%" stopColor="#08B9AE" />
+              </linearGradient>
+            </defs>
+            <path
+              ref={pathRef}
+              d=""
+              fill="none"
+              stroke={`url(#${gradientId})`}
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              opacity="0"
+              className="challenge-link"
+            />
+          </svg>
+        ) : null}
 
         <aside
+          ref={panelRef}
           id={`${baseId}-detail`}
-          className="challenge-detail hidden rounded-2xl border border-line bg-white p-5 lg:block"
+          className="challenge-detail relative z-10 mt-6 hidden rounded-2xl border border-line bg-white p-5 lg:mt-0 lg:block"
           aria-live="polite"
         >
-          <BreakdownBody item={item} />
+          {desktop ? <BreakdownBody item={item} /> : null}
         </aside>
       </div>
     </div>
