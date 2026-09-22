@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 
 const STORAGE_KEY = "mm-cookie-preferences";
+const CHANGE_EVENT = "mm-cookie-preferences-change";
 
 type Preferences = {
   essential: true;
@@ -30,26 +31,25 @@ function readPreferences(): Preferences | null {
   }
 }
 
+function subscribe(onStoreChange: () => void) {
+  window.addEventListener(CHANGE_EVENT, onStoreChange);
+  window.addEventListener("storage", onStoreChange);
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, onStoreChange);
+    window.removeEventListener("storage", onStoreChange);
+  };
+}
+
+function persist(next: Preferences) {
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  window.dispatchEvent(new Event(CHANGE_EVENT));
+}
+
 export function CookieBanner() {
+  const existing = useSyncExternalStore(subscribe, readPreferences, () => null);
   const [open, setOpen] = useState(false);
-  const [banner, setBanner] = useState(false);
-  const [analytics, setAnalytics] = useState(false);
-
-  useEffect(() => {
-    const existing = readPreferences();
-    if (!existing) {
-      setBanner(true);
-      return;
-    }
-    setAnalytics(existing.analytics);
-  }, []);
-
-  function persist(next: Preferences) {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setAnalytics(next.analytics);
-    setBanner(false);
-    setOpen(false);
-  }
+  const [draftAnalytics, setDraftAnalytics] = useState(false);
+  const banner = existing === null;
 
   return (
     <>
@@ -77,7 +77,10 @@ export function CookieBanner() {
                 type="button"
                 variant="outline"
                 className="h-11 px-4"
-                onClick={() => setOpen(true)}
+                onClick={() => {
+                  setDraftAnalytics(false);
+                  setOpen(true);
+                }}
               >
                 Preferences
               </Button>
@@ -95,7 +98,10 @@ export function CookieBanner() {
         <button
           type="button"
           className="fixed bottom-4 left-4 z-30 min-h-11 rounded-lg border border-line bg-white px-3 text-xs font-medium text-slate shadow-sm hover:text-navy"
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setDraftAnalytics(existing.analytics);
+            setOpen(true);
+          }}
         >
           Cookie preferences
         </button>
@@ -123,8 +129,8 @@ export function CookieBanner() {
               <input
                 type="checkbox"
                 className="mt-1"
-                checked={analytics}
-                onChange={(event) => setAnalytics(event.target.checked)}
+                checked={draftAnalytics}
+                onChange={(event) => setDraftAnalytics(event.target.checked)}
               />
               <span>
                 <strong className="text-navy">Analytics</strong>
@@ -136,7 +142,7 @@ export function CookieBanner() {
             <Button
               type="button"
               className="h-11"
-              onClick={() => persist({ essential: true, analytics })}
+              onClick={() => persist({ essential: true, analytics: draftAnalytics })}
             >
               Save preferences
             </Button>

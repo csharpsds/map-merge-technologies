@@ -32,7 +32,8 @@ export function ServicesBrowser() {
   const [group, setGroup] = useState<(typeof groups)[number]["id"]>("all");
   const visible = useMemo(() => {
     const selected = groups.find((item) => item.id === group) ?? groups[0];
-    return services.filter((service) => selected.slugs.includes(service.slug));
+    const slugs: readonly string[] = selected.slugs;
+    return services.filter((service) => slugs.includes(service.slug));
   }, [group]);
 
   return (
