@@ -103,11 +103,6 @@ export function ChallengeBreakdown() {
     () => getMediaQuerySnapshot("(prefers-reduced-motion: reduce)"),
     () => true,
   );
-  const desktop = useSyncExternalStore(
-    subscribeMediaQuery("(min-width: 1024px)"),
-    () => getMediaQuerySnapshot("(min-width: 1024px)"),
-    () => false,
-  );
   const item = challengeBreakdowns[selected];
 
   useEffect(() => {
@@ -122,8 +117,6 @@ export function ChallengeBreakdown() {
   }, []);
 
   useLayoutEffect(() => {
-    if (!desktop) return;
-
     let frame = 0;
     let cancelled = false;
 
@@ -162,6 +155,9 @@ export function ChallengeBreakdown() {
     window.addEventListener("resize", onWindowChange);
     window.addEventListener("orientationchange", onWindowChange);
 
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    desktopQuery.addEventListener("change", onWindowChange);
+
     const fonts = document.fonts;
     fonts?.addEventListener("loadingdone", onWindowChange);
     void fonts?.ready.then(() => {
@@ -174,9 +170,10 @@ export function ChallengeBreakdown() {
       observer.disconnect();
       window.removeEventListener("resize", onWindowChange);
       window.removeEventListener("orientationchange", onWindowChange);
+      desktopQuery.removeEventListener("change", onWindowChange);
       fonts?.removeEventListener("loadingdone", onWindowChange);
     };
-  }, [desktop, selected, item.title, reducedMotion]);
+  }, [selected, item.title, reducedMotion]);
 
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
@@ -219,8 +216,8 @@ export function ChallengeBreakdown() {
                   data-challenge-index={index}
                   id={`${baseId}-tab-${index}`}
                   aria-pressed={active}
-                  aria-expanded={desktop ? undefined : active}
-                  aria-controls={desktop ? `${baseId}-detail` : panelId}
+                  aria-expanded={active}
+                  aria-controls={`${baseId}-detail`}
                   className={cn("challenge-row w-full text-left", active && "is-active")}
                   onClick={() => setSelected(index)}
                   onKeyDown={(event) => onKeyDown(event, index)}
@@ -239,51 +236,46 @@ export function ChallengeBreakdown() {
                     </span>
                   </span>
                 </button>
-                {!desktop ? (
-                  <div
-                    id={panelId}
-                    role="region"
-                    hidden={!active}
-                    className="challenge-mobile-panel"
-                  >
-                    {active ? <BreakdownBody item={challenge} /> : null}
-                  </div>
-                ) : null}
+                <div
+                  id={panelId}
+                  role="region"
+                  className={cn("challenge-mobile-panel lg:hidden", !active && "hidden")}
+                >
+                  {active ? <BreakdownBody item={challenge} /> : null}
+                </div>
               </li>
             );
           })}
         </ol>
 
-        {desktop ? (
-          <div
-            ref={gutterRef}
-            className="challenge-gutter relative hidden min-h-full overflow-hidden lg:block"
-            aria-hidden="true"
+        <div
+          ref={gutterRef}
+          className="challenge-gutter relative hidden min-h-full overflow-hidden lg:block"
+          aria-hidden="true"
+        >
+          <svg
+            ref={svgRef}
+            className="challenge-connector pointer-events-none absolute inset-0 h-full w-full"
           >
-            <svg
-              ref={svgRef}
-              className="challenge-connector pointer-events-none absolute inset-0 h-full w-full"
-            >
-              <defs>
-                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#0799F8" />
-                  <stop offset="100%" stopColor="#08B9AE" />
-                </linearGradient>
-              </defs>
-              <path
-                ref={pathRef}
-                d=""
-                fill="none"
-                stroke={`url(#${gradientId})`}
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                vectorEffect="non-scaling-stroke"
-                opacity="0"
-                className="challenge-link"
-              />
-            </svg>
-          </div>
-        ) : null}
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#0799F8" />
+                <stop offset="100%" stopColor="#08B9AE" />
+              </linearGradient>
+            </defs>
+            <path
+              ref={pathRef}
+              d=""
+              fill="none"
+              stroke={`url(#${gradientId})`}
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0"
+              className="challenge-link"
+            />
+          </svg>
+        </div>
 
         <aside
           ref={panelRef}
@@ -291,7 +283,7 @@ export function ChallengeBreakdown() {
           className="challenge-detail mt-6 hidden rounded-2xl border border-line bg-white p-5 lg:mt-0 lg:block"
           aria-live="polite"
         >
-          {desktop ? <BreakdownBody item={item} /> : null}
+          <BreakdownBody item={item} />
         </aside>
       </div>
     </div>
