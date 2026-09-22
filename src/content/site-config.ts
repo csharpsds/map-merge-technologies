@@ -53,6 +53,7 @@ export const siteConfig = {
     { label: "Industries", href: "/industries" },
     { label: "Case Studies", href: "/case-studies" },
     { label: "About Us", href: "/about" },
+    { label: "Careers", href: "/careers" },
     { label: "Insights", href: "/insights" },
     { label: "Contact", href: "/contact" },
   ] satisfies NavItem[],
@@ -69,6 +70,7 @@ export const siteConfig = {
     { label: "Industries", href: "/industries" },
     { label: "Case Studies", href: "/case-studies" },
     { label: "Solutions", href: "/solutions" },
+    { label: "Careers", href: "/careers" },
     { label: "Contact", href: "/contact" },
   ] satisfies NavItem[],
   footerInsights: [

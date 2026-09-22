@@ -41,8 +41,9 @@ export default async function ContactPage({
             {siteConfig.cta.discussGoals}
           </h1>
           <p className="mt-4 text-base leading-7 text-slate">
-            Share the systems, constraints, and timing. The default handler stores nothing
-            durable until you connect an email service, API, or CRM.
+            Share the systems, constraints, and timing. If this form is not connected to
+            email or a CRM, the details are checked on this page and are not stored or
+            forwarded.
           </p>
           {contactEntries.length > 0 ? (
             <ul className="mt-8 space-y-2 text-sm text-ink">
@@ -61,10 +62,8 @@ export default async function ContactPage({
             </ul>
           ) : (
             <p className="mt-8 rounded-xl border border-dashed border-line bg-white px-4 py-3 text-sm text-slate">
-              Public email, phone, and street address are not published yet. Use the form
-              on this page. Values can be added in{" "}
-              <code className="text-navy">src/content/site-config.ts</code> or environment
-              variables.
+              Public email, phone, and street address are not listed on this page. Use the
+              form to describe the work.
             </p>
           )}
         </div>

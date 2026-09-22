@@ -1,4 +1,5 @@
 import { siteConfig } from "@/content/site-config";
+import { isCountryCode } from "@/lib/countries";
 
 export type ContactPayload = {
   fullName: string;
@@ -6,6 +7,7 @@ export type ContactPayload = {
   email: string;
   phone: string;
   country: string;
+  countryCode: string;
   inquiryCategory: string;
   projectDescription: string;
   preferredStartDate: string;
@@ -56,6 +58,11 @@ export function validateContactPayload(
   if (!EMAIL_PATTERN.test(payload.email.trim())) {
     errors.email = contactFieldHelp.email;
   }
+  if (payload.country.trim() || payload.countryCode.trim()) {
+    if (!isCountryCode(payload.countryCode) || !payload.country.trim()) {
+      errors.country = "Select a country from the list.";
+    }
+  }
   if (!siteConfig.inquiryCategories.includes(payload.inquiryCategory as never)) {
     errors.inquiryCategory = "Select an inquiry category.";
   }
@@ -94,6 +101,7 @@ export function emptyContactPayload(): ContactPayload {
     email: "",
     phone: "",
     country: "",
+    countryCode: "",
     inquiryCategory: "",
     projectDescription: "",
     preferredStartDate: "",

@@ -100,6 +100,39 @@ export function breadcrumbJsonLd(
   };
 }
 
+export function jobPostingJsonLd(job: {
+  slug: string;
+  title: string;
+  location: string;
+  employmentType: string;
+  summary: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.summary,
+    employmentType: job.employmentType,
+    url: absoluteUrl(`/careers/${job.slug}`),
+    hiringOrganization: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: absoluteUrl("/"),
+    },
+    ...(job.location.toLowerCase().includes("remote")
+      ? { jobLocationType: "TELECOMMUTE" }
+      : {}),
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: siteConfig.country,
+        addressLocality: job.location,
+      },
+    },
+  };
+}
+
 export function faqJsonLd(faqs: { question: string; answer: string }[]) {
   return {
     "@context": "https://schema.org",

@@ -323,6 +323,12 @@ export const megaNav: MegaPanel[] = [
             preview: "operate",
           },
           {
+            label: "Careers",
+            href: "/careers",
+            description: "Open roles and expressions of interest",
+            preview: "operate",
+          },
+          {
             label: "Contact",
             href: "/contact",
             description: "Describe the landscape and the constraint",

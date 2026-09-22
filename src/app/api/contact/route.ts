@@ -4,6 +4,7 @@ import {
   validateContactPayload,
   type ContactPayload,
 } from "@/lib/contact";
+import { contactDeliveryConfigured, forwardContactSubmission } from "@/lib/submissions";
 
 export const runtime = "nodejs";
 
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
     email: readString(formData, "email"),
     phone: readString(formData, "phone"),
     country: readString(formData, "country"),
+    countryCode: readString(formData, "countryCode"),
     inquiryCategory: readString(formData, "inquiryCategory"),
     projectDescription: readString(formData, "projectDescription"),
     preferredStartDate: readString(formData, "preferredStartDate"),
@@ -42,32 +44,32 @@ export async function POST(request: Request) {
     );
   }
 
-  const webhook = process.env.CONTACT_WEBHOOK_URL?.trim();
-  if (webhook) {
-    const forwarded = await fetch(webhook, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...payload,
-        website: undefined,
-        attachmentName: file?.name ?? null,
-      }),
+  if (contactDeliveryConfigured()) {
+    const result = await forwardContactSubmission({
+      ...payload,
+      website: undefined,
+      attachmentName: file?.name ?? null,
     });
-    if (!forwarded.ok) {
+    if (!result.delivered) {
       return NextResponse.json(
-        { ok: false, message: "The connected inquiry service could not accept this request." },
+        {
+          ok: false,
+          message: "The connected inquiry service could not accept this request.",
+        },
         { status: 502 },
       );
     }
     return NextResponse.json({
       ok: true,
+      delivered: true,
       message: "Thank you. Your inquiry was forwarded to the configured destination.",
     });
   }
 
   return NextResponse.json({
     ok: true,
+    delivered: false,
     message:
-      "Thank you. This environment is using the mock handler, so the inquiry was validated and not stored. Connect CONTACT_WEBHOOK_URL to send it to email, an API, or a CRM.",
+      "The details were checked, but they were not stored or forwarded. This form is not connected to email, an API, or a CRM in this environment.",
   });
 }

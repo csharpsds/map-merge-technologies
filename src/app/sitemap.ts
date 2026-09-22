@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { articles } from "@/content/articles";
 import { caseStudies } from "@/content/case-studies";
+import { jobs } from "@/content/jobs";
 import { services } from "@/content/services";
 import { siteConfig } from "@/content/site-config";
 
@@ -13,6 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/industries",
     "/case-studies",
     "/about",
+    "/careers",
+    "/careers/apply",
     "/insights",
     "/contact",
     "/privacy",
@@ -25,6 +28,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${base}${path}`,
       changeFrequency: "monthly" as const,
       priority: path === "/" ? 1 : 0.7,
+    })),
+    ...jobs.map((job) => ({
+      url: `${base}/careers/${job.slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
     })),
     ...services.map((service) => ({
       url: `${base}/services/${service.slug}`,

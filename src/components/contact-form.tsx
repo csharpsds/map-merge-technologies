@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CountrySelect } from "@/components/country-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,9 +33,9 @@ export function ContactForm({
   });
   const [errors, setErrors] = useState<ContactFieldErrors>({});
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
-    "idle",
-  );
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "notice" | "error"
+  >("idle");
   const [serverMessage, setServerMessage] = useState("");
 
   function update<K extends keyof ContactPayload>(key: K, value: ContactPayload[K]) {
@@ -51,7 +52,7 @@ export function ContactForm({
     );
   }
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validateContactPayload(
       values,
@@ -79,7 +80,10 @@ export function ContactForm({
         method: "POST",
         body,
       });
-      const result = (await response.json()) as { message?: string };
+      const result = (await response.json()) as {
+        message?: string;
+        delivered?: boolean;
+      };
 
       if (!response.ok) {
         setStatus("error");
@@ -87,10 +91,12 @@ export function ContactForm({
         return;
       }
 
-      setStatus("success");
+      setStatus(result.delivered ? "success" : "notice");
       setServerMessage(
         result.message ??
-          "Thank you. Your inquiry was received by the local form handler.",
+          (result.delivered
+            ? "Thank you. Your inquiry was forwarded to the configured destination."
+            : "The details were checked, but they were not stored or forwarded."),
       );
       setValues(emptyContactPayload());
       setFile(null);
@@ -181,14 +187,22 @@ export function ContactForm({
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <Label htmlFor="country">Country</Label>
-          <Input
-            id="country"
-            name="country"
-            autoComplete="country-name"
-            className={`mt-2 ${fieldClass}`}
-            value={values.country}
-            onChange={(event) => update("country", event.target.value)}
-          />
+          <div className="mt-2">
+            <CountrySelect
+              id="country"
+              countryName={values.country}
+              countryCode={values.countryCode}
+              error={errors.country}
+              onChange={(country) => {
+                setValues((current) => ({
+                  ...current,
+                  country: country?.name ?? "",
+                  countryCode: country?.code ?? "",
+                }));
+              }}
+            />
+          </div>
+          {fieldError("country")}
         </div>
         <div>
           <Label htmlFor="inquiryCategory">Service required</Label>
@@ -277,8 +291,8 @@ export function ContactForm({
           aria-describedby={errors.attachment ? "attachment-error" : "attachment-help"}
         />
         <p id="attachment-help" className="mt-1 text-xs text-slate">
-          PDF, DOC, DOCX, or TXT up to 5 MB. Files are not stored by the default mock
-          handler.
+          PDF, DOC, DOCX, or TXT up to 5 MB. Files are forwarded only when a delivery
+          destination is connected. They are not published on this site.
         </p>
         {fieldError("attachment")}
       </div>
@@ -304,6 +318,11 @@ export function ContactForm({
 
       {status === "success" ? (
         <p className="rounded-xl bg-teal/10 px-4 py-3 text-sm text-navy" role="status">
+          {serverMessage}
+        </p>
+      ) : null}
+      {status === "notice" ? (
+        <p className="rounded-xl border border-line bg-canvas px-4 py-3 text-sm text-navy" role="status">
           {serverMessage}
         </p>
       ) : null}
