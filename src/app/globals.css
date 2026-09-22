@@ -217,6 +217,175 @@
     animation: none;
     width: 100%;
   }
+
+  .ecosystem-track,
+  .ecosystem-signal,
+  .expertise-tab-indicator {
+    animation: none !important;
+  }
+
+  .ecosystem-row {
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .ecosystem-track {
+    width: 100%;
+    transform: none;
+    flex-wrap: wrap;
+  }
+
+  .ecosystem-clone,
+  .ecosystem-dot {
+    display: none;
+  }
+
+  .expertise-panel,
+  .expertise-skill {
+    transition: none !important;
+  }
+}
+
+@keyframes ecosystem-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes ecosystem-dash {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+@keyframes expertise-indicator {
+  from {
+    transform: scaleX(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.ecosystem-row {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+
+.ecosystem-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  animation: ecosystem-marquee 46s linear infinite;
+}
+
+.ecosystem-row[data-direction="reverse"] .ecosystem-track {
+  animation-direction: reverse;
+  animation-duration: 54s;
+}
+
+.ecosystem-row:hover .ecosystem-track,
+.ecosystem-row:focus-within .ecosystem-track {
+  animation-play-state: paused;
+}
+
+.ecosystem-row:focus-within {
+  mask-image: none;
+}
+
+.ecosystem-signal {
+  stroke-dasharray: 8 14;
+  animation: ecosystem-dash 11s linear infinite;
+}
+
+.ecosystem-signal-delay {
+  animation-duration: 14s;
+  animation-direction: reverse;
+}
+
+.expertise-panel.is-leaving {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.expertise-panel.is-entering {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.expertise-tab-indicator {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.4rem;
+  left: 1rem;
+  height: 2px;
+  transform-origin: left center;
+  border-radius: 999px;
+  background: linear-gradient(to right, #12bff3, #08b9ae);
+  animation: expertise-indicator 280ms ease both;
+}
+
+.expertise-skill {
+  position: relative;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.expertise-skill:hover,
+.expertise-skill:focus-visible {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px rgb(18 191 243 / 0.45),
+    0 10px 22px rgb(3 27 61 / 0.28);
+}
+
+.expertise-skill-accent {
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: 0;
+  width: 3px;
+  transform: scaleY(0);
+  border-radius: 999px;
+  background: #08b9ae;
+  transition: transform 160ms ease;
+}
+
+.expertise-skill:hover .expertise-skill-accent,
+.expertise-skill:focus-visible .expertise-skill-accent,
+.expertise-skill[aria-pressed="true"] .expertise-skill-accent {
+  transform: scaleY(1);
+}
+
+@media (max-width: 767px) {
+  .ecosystem-row {
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .ecosystem-track {
+    animation: none;
+    width: 100%;
+    transform: none;
+    flex-wrap: wrap;
+  }
+
+  .ecosystem-clone {
+    display: none;
+  }
 }
 
 @layer utilities {

@@ -14,7 +14,7 @@ import { ProcessTimeline } from "@/components/process-timeline";
 import { SectionHeading } from "@/components/section-heading";
 import { ServiceCard } from "@/components/service-card";
 import { Statistics } from "@/components/statistics";
-import { TechnologyBadge } from "@/components/technology-badge";
+import { EcosystemShowcase } from "@/components/ecosystem-showcase";
 import { featuredArticles } from "@/content/articles";
 import { caseStudies } from "@/content/case-studies";
 import { engagementModels } from "@/content/engagement-models";
@@ -159,8 +159,9 @@ export default function HomePage() {
         </Container>
       </section>
 
-      <section className="bg-navy py-16 text-white sm:py-24">
-        <Container>
+      <section className="relative overflow-hidden bg-navy py-16 text-white sm:py-24">
+        <div className="grid-overlay pointer-events-none absolute inset-0 opacity-70" />
+        <Container className="relative">
           <SectionHeading
             eyebrow="Technical expertise"
             title="MuleSoft delivery across platform, architecture, and DevOps"
@@ -179,10 +180,8 @@ export default function HomePage() {
             title="Connect the systems already running the business"
             description="Text labels only—no trademarked logos. These are common integration targets, not partnership claims."
           />
-          <div className="mt-8 flex flex-wrap gap-2">
-            {siteConfig.ecosystem.map((item) => (
-              <TechnologyBadge key={item} label={item} />
-            ))}
+          <div className="mt-10">
+            <EcosystemShowcase />
           </div>
         </Container>
       </section>
