@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { ArticleCard } from "@/components/article-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Container } from "@/components/container";
@@ -36,21 +37,38 @@ export default function InsightsPage() {
           ]}
         />
         <h1 className="text-4xl font-semibold text-navy">Insights</h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-slate">
-          Practical writing for teams running MuleSoft programs. Articles are local mock
-          content structured so a CMS can replace them later.
+        <p className="mt-4 max-w-3xl text-base leading-7 text-slate">
+          Longer working notes for teams running MuleSoft programs: migration sequencing,
+          CloudHub 2.0 readiness, Java 17, API-led reuse, MUnit, security reviews, and
+          pipelines. Each article includes a table of contents and takeaways.
         </p>
 
         {featured ? (
-          <div className="mt-10">
-            <p className="text-xs font-semibold tracking-[0.2em] text-electric uppercase">
+          <div className="mt-10 overflow-hidden rounded-3xl border border-line bg-navy p-6 text-white md:p-8">
+            <p className="text-xs font-semibold tracking-[0.2em] text-cyan uppercase">
               Featured
             </p>
-            <div className="mt-4 max-w-xl">
-              <ArticleCard article={featured} />
-            </div>
+            <h2 className="mt-3 max-w-2xl text-3xl font-semibold">{featured.title}</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">{featured.excerpt}</p>
+            <p className="mt-4 text-xs text-white/60">
+              {featured.date} · {featured.readingTime} · {featured.sections.length} sections
+            </p>
+            <Link
+              href={`/insights/${featured.slug}`}
+              className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-cyan"
+            >
+              Read the full note
+            </Link>
           </div>
         ) : null}
+
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {featuredArticles()
+            .slice(1, 4)
+            .map((article) => (
+              <ArticleCard key={article.slug} article={article} />
+            ))}
+        </div>
 
         <div className="mt-14">
           <Suspense fallback={<LoadingState label="Loading articles" />}>

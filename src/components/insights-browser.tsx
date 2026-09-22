@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Pagination } from "@/components/pagination";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { articles, insightCategories } from "@/content/articles";
+import { articleParagraphs, articles, insightCategories } from "@/content/articles";
 
 const PAGE_SIZE = 6;
 
@@ -31,7 +31,10 @@ export function InsightsBrowser() {
         !needle ||
         article.title.toLowerCase().includes(needle) ||
         article.excerpt.toLowerCase().includes(needle) ||
-        article.body.some((paragraph) => paragraph.toLowerCase().includes(needle));
+        articleParagraphs(article).some((paragraph) =>
+          paragraph.toLowerCase().includes(needle),
+        ) ||
+        article.sections.some((section) => section.heading.toLowerCase().includes(needle));
       return matchesCategory && matchesQuery;
     });
   }, [category, query]);

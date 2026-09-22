@@ -133,6 +133,26 @@
   }
 }
 
+@keyframes preview-flow {
+  0% {
+    transform: translateX(-30%);
+  }
+  100% {
+    transform: translateX(160%);
+  }
+}
+
+.preview-flow-bar {
+  animation: preview-flow 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-flow-bar {
+    animation: none;
+    width: 100%;
+  }
+}
+
 @layer utilities {
   .grid-overlay {
     background-image:

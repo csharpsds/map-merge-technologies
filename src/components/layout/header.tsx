@@ -2,29 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { MegaMenu } from "@/components/layout/mega-menu";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { siteConfig } from "@/content/site-config";
-import { cn } from "@/lib/utils";
-
-function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 export function Header() {
-  const pathname = usePathname();
-
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-line bg-white/90 backdrop-blur-md">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-electric focus:px-3 focus:py-2 focus:text-white"
       >
         Skip to content
       </a>
-      <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex min-h-11 shrink-0 items-center">
           <Image
             src={siteConfig.brand.logo}
@@ -36,27 +28,12 @@ export function Header() {
           />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center lg:flex">
-          {siteConfig.nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "rounded-lg px-2 py-2 text-[13px] font-medium text-slate hover:text-navy",
-                isActive(pathname, item.href) && "bg-canvas text-navy",
-              )}
-              aria-current={isActive(pathname, item.href) ? "page" : undefined}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <MegaMenu />
 
         <div className="flex items-center gap-2">
-          <Button asChild className="hidden h-11 min-h-11 shrink-0 px-3 text-[13px] font-semibold lg:inline-flex">
-            <Link href="/contact">{siteConfig.cta.bookConsultation}</Link>
+          <Button asChild className="hidden h-11 min-h-11 shrink-0 rounded-full px-4 text-[13px] font-semibold lg:inline-flex">
+            <Link href="/contact">Talk to an Integration Expert</Link>
           </Button>
-
           <MobileNav />
         </div>
       </div>

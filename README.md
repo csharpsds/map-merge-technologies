@@ -68,7 +68,8 @@ To connect a real destination later:
 
 Page copy lives in typed files, not in the layouts:
 
-- `src/content/site-config.ts` — name, tagline, nav, stats, CTAs, legal disclaimer, contact/social
+- `src/content/site-config.ts` — name, tagline, footer nav, stats, CTAs, legal disclaimer, contact/social
+- `src/content/nav.ts` — desktop mega-menu and mobile accordion groups
 - `src/content/services.ts`
 - `src/content/solutions.ts`
 - `src/content/industries.ts`
@@ -80,7 +81,9 @@ Page copy lives in typed files, not in the layouts:
 
 Experience indicators are only the four supportable claims in `siteConfig.stats`. Do not add customer totals, certification counts, or partnership status unless they are verified.
 
-Insights articles are local mock data shaped for a later CMS.
+Insights articles are local mock data shaped for a later CMS. Each article has sections, takeaways, and related-article matching by category.
+
+Desktop navigation uses hover and keyboard-focus mega-menus. The hero diagram shifts slightly with the pointer and stays still when `prefers-reduced-motion` is set.
 
 ## Brand assets
 

@@ -4,7 +4,7 @@ import type { Article } from "@/content/articles";
 
 export function ArticleCard({ article }: { article: Article }) {
   return (
-    <Card className="h-full border-line bg-white shadow-sm ring-0 transition-shadow hover:shadow-md">
+    <Card className="h-full border-line bg-white shadow-sm ring-0 transition-transform hover:-translate-y-0.5 hover:shadow-md">
       <CardHeader>
         <p className="text-xs tracking-wide text-slate uppercase">
           {article.categories[0]} · {article.readingTime}

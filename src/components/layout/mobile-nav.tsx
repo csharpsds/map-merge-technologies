@@ -6,6 +6,12 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -13,7 +19,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { siteConfig } from "@/content/site-config";
+import { megaNav } from "@/content/nav";
 import { cn } from "@/lib/utils";
 
 function isActive(pathname: string, href: string) {
@@ -31,35 +37,66 @@ export function MobileNav() {
         <Button
           variant="outline"
           size="icon"
-          className="h-11 w-11 lg:hidden"
+          className="h-11 w-11 rounded-full lg:hidden"
           aria-label="Open menu"
         >
           <Menu className="size-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-80">
+      <SheetContent side="right" className="w-[min(24rem,100vw)] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Menu</SheetTitle>
           <SheetDescription>Map & Merge Technologies</SheetDescription>
         </SheetHeader>
-        <nav aria-label="Mobile" className="flex flex-col gap-1 px-4 pb-6">
-          {siteConfig.nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className={cn(
-                "min-h-11 rounded-lg px-3 py-3 text-sm font-medium text-ink",
-                isActive(pathname, item.href) && "bg-canvas text-navy",
-              )}
-              aria-current={isActive(pathname, item.href) ? "page" : undefined}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Button asChild className="mt-4 h-11 font-semibold">
+        <nav aria-label="Mobile" className="px-4 pb-8">
+          <Link
+            href="/"
+            onClick={() => setOpen(false)}
+            className={cn(
+              "flex min-h-11 items-center rounded-lg px-2 text-sm font-medium",
+              pathname === "/" ? "bg-canvas text-navy" : "text-ink",
+            )}
+          >
+            Home
+          </Link>
+          <Accordion type="single" collapsible className="mt-2">
+            {megaNav.map((panel) => (
+              <AccordionItem key={panel.id} value={panel.id}>
+                <AccordionTrigger className="px-2 text-sm text-navy">
+                  {panel.label}
+                </AccordionTrigger>
+                <AccordionContent className="[&_a]:no-underline">
+                  <div className="space-y-3 pb-2">
+                    <Link
+                      href={panel.href}
+                      onClick={() => setOpen(false)}
+                      className="block px-2 text-sm font-semibold text-electric"
+                    >
+                      Overview
+                    </Link>
+                    {panel.columns.flatMap((column) =>
+                      column.links.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setOpen(false)}
+                          className={cn(
+                            "block rounded-lg px-2 py-2 text-sm",
+                            isActive(pathname, link.href) ? "bg-canvas text-navy" : "text-ink",
+                          )}
+                        >
+                          {link.label}
+                        </Link>
+                      )),
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+          <Button asChild className="mt-4 h-11 w-full rounded-full font-semibold">
             <Link href="/contact" onClick={() => setOpen(false)}>
-              {siteConfig.cta.bookConsultation}
+              Talk to an Integration Expert
             </Link>
           </Button>
         </nav>
