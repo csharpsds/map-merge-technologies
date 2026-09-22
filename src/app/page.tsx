@@ -179,7 +179,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="Integration ecosystem"
             title="Connect the systems already running the business"
-            description="Text labels only—no trademarked logos. These are common integration targets, not partnership claims."
+            description="Technology names identify possible integration targets. They do not indicate partnerships or endorsements."
           />
           <div className="mt-10">
             <EcosystemShowcase />

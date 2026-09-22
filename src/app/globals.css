@@ -299,8 +299,15 @@
 }
 
 .ecosystem-row:hover .ecosystem-track,
-.ecosystem-row:focus-within .ecosystem-track {
+.ecosystem-row:focus-within .ecosystem-track,
+.ecosystem-row.is-paused .ecosystem-track {
   animation-play-state: paused;
+}
+
+.ecosystem-pill-selected {
+  box-shadow:
+    0 0 0 1px rgb(8 185 174 / 0.55),
+    0 0 18px rgb(7 153 248 / 0.35);
 }
 
 .ecosystem-row:focus-within {
