@@ -2,11 +2,14 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ServiceIcon } from "@/components/icons";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { serviceIntegrationDetails } from "@/content/integration-canvas";
 import type { Service } from "@/content/services";
 
 export function ServiceCard({ service }: { service: Service }) {
+  const canvasDetail = serviceIntegrationDetails[service.slug];
+
   return (
-    <Card className="h-full border-line bg-white shadow-sm ring-0 transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-electric/40">
+    <Card className="group h-full border-line bg-white shadow-sm ring-0 transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-electric/40">
       <CardHeader>
         <div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-electric/10 text-electric">
           <ServiceIcon name={service.icon} className="size-5" />
@@ -23,6 +26,12 @@ export function ServiceCard({ service }: { service: Service }) {
             </li>
           ))}
         </ul>
+        {canvasDetail ? (
+          <p className="mt-5 border-l-2 border-line pl-3 text-xs leading-5 text-slate transition-colors group-hover:border-teal group-focus-within:border-teal">
+            <span className="font-semibold text-navy">On the canvas. </span>
+            {canvasDetail}
+          </p>
+        ) : null}
       </CardContent>
       <CardFooter className="border-line bg-canvas/70">
         <Link

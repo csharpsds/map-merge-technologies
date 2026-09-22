@@ -146,6 +146,72 @@
   animation: preview-flow 2.8s ease-in-out infinite;
 }
 
+.hero-contour {
+  background-image:
+    radial-gradient(circle at 72% 42%, rgb(7 153 248 / 0.12), transparent 22%),
+    radial-gradient(circle at 18% 78%, rgb(8 185 174 / 0.1), transparent 24%);
+}
+
+.hero-copy {
+  animation: hero-enter 0.7s ease-out both;
+}
+
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes canvas-packet {
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes canvas-path-flow {
+  from {
+    stroke-dashoffset: 28;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes canvas-node-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgb(7 153 248 / 0));
+  }
+  45% {
+    filter: drop-shadow(0 0 10px rgb(18 191 243 / 0.7));
+  }
+}
+
+.canvas-packet {
+  offset-distance: 0%;
+  animation: canvas-packet 3.1s linear infinite;
+}
+
+.canvas-path-active {
+  stroke-dasharray: 10 18;
+  animation: canvas-path-flow 1.6s linear infinite;
+}
+
+.canvas-node-pulse {
+  animation: canvas-node-pulse 2.6s ease-in-out infinite;
+}
+
+.integration-canvas[data-motion="off"] .canvas-packet,
+.integration-canvas[data-motion="off"] .canvas-path-active,
+.integration-canvas[data-motion="off"] .canvas-node-pulse {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .preview-flow-bar {
     animation: none;

@@ -8,7 +8,8 @@ import { EngagementCard } from "@/components/engagement-card";
 import { ExpertiseTabs } from "@/components/expertise-tabs";
 import { Hero } from "@/components/hero";
 import { IndustryCard } from "@/components/industry-card";
-import { IntegrationGraphic } from "@/components/integration-graphic";
+import { ConnectionSequence } from "@/components/connection-sequence";
+import { IntegrationCanvas } from "@/components/integration-canvas";
 import { ProcessTimeline } from "@/components/process-timeline";
 import { SectionHeading } from "@/components/section-heading";
 import { ServiceCard } from "@/components/service-card";
@@ -32,13 +33,14 @@ export default function HomePage() {
   return (
     <>
       <Hero
+        layout="canvas"
         eyebrow="MuleSoft and enterprise integration"
         title={siteConfig.hero.headline}
         description={siteConfig.hero.supporting}
         primaryCta={{ href: "/contact", label: siteConfig.cta.talkToExpert }}
         secondaryCta={{ href: "/services", label: siteConfig.cta.exploreServices }}
       >
-        <IntegrationGraphic />
+        <IntegrationCanvas />
       </Hero>
 
       <section className="bg-navy pb-10">
@@ -57,6 +59,8 @@ export default function HomePage() {
       </section>
 
       <Statistics />
+
+      <ConnectionSequence />
 
       <section className="py-16 sm:py-24">
         <Container>
